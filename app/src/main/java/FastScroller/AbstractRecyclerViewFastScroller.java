@@ -9,8 +9,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.view.GestureDetectorCompat;
+import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -30,34 +30,32 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
  * Created by tonychiu25 on 2018-10-02.
  */
 
-public abstract class AbstractRecyclerViewFastScroller extends FrameLayout implements View.OnTouchListener {
-
+public abstract class AbstractRecyclerViewFastScroller extends FrameLayout
+        implements View.OnTouchListener, RecyclerViewScroller {
 
     public static final int LEFT = 0;
     public static final int RIGHT = 1;
     public static final int TOP = 2;
     public static final int BOTTOM = 3;
-
     @IntDef({LEFT, RIGHT, TOP, BOTTOM})
     @Retention(CLASS)
     public @interface HandlerInfoViewPlacement {}
-
-    // Placement of the info bubble view, relative to the scroll handler.
-//    public enum HandlerInfoViewPlacement { LEFT, RIGHT, TOP, BOTTOM }
 
     private static final int[] STYLEABLE = R.styleable.AbstractRecyclerViewFastScroller;
 
     protected final ConstraintLayout fRootConstraintContainer;
     protected final View fScrollBar;
-    protected final ImageView fScrollHandle;
-    protected final GestureDetectorCompat fGestureDetector;
+    protected final ImageView fScrollHandler;
+    protected final GestureDetectorCompat fHandlerGestureDetector;
+
+    protected RecyclerView mRecyclerView;
 
     public AbstractRecyclerViewFastScroller(@NonNull Context context, @Nullable AttributeSet attrs, int layoutResource) {
         super(context, attrs);
 
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         layoutInflater.inflate(layoutResource, this, true);
-        fGestureDetector = new GestureDetectorCompat(context, getOnGestureListener());
+        fHandlerGestureDetector = new GestureDetectorCompat(context, getHandlerGestureListener());
         fRootConstraintContainer = findViewById(R.id.scroll_bar_container);
 
         TypedArray attributes = getContext().getTheme().obtainStyledAttributes(attrs, STYLEABLE, 0, 0);
@@ -67,17 +65,17 @@ public abstract class AbstractRecyclerViewFastScroller extends FrameLayout imple
             fScrollBar.setBackgroundColor(Color.GRAY);
 
             // Initialise scrollbar handle
-            fScrollHandle = findViewById(R.id.scroll_handle);
-            fScrollHandle.setOnTouchListener(this);
+            fScrollHandler = findViewById(R.id.scroll_handle);
+            fScrollHandler.setOnTouchListener(this);
             Drawable handlerDrawable = attributes.getDrawable(R.styleable.AbstractRecyclerViewFastScroller_scroll_handler_background);
             if (handlerDrawable != null) {
                 int wrapContent = ViewGroup.LayoutParams.WRAP_CONTENT;
                 int handlerWidth = (int) attributes.getDimension(R.styleable.AbstractRecyclerViewFastScroller_scroll_handler_width, wrapContent);
                 int handlerHeight = (int) attributes.getDimension(R.styleable.AbstractRecyclerViewFastScroller_scroll_handler_height, wrapContent);
 
-                fScrollHandle.setImageDrawable(handlerDrawable);
-                fScrollHandle.getLayoutParams().width = handlerWidth;
-                fScrollHandle.getLayoutParams().height = handlerHeight;
+                fScrollHandler.setImageDrawable(handlerDrawable);
+                fScrollHandler.getLayoutParams().width = handlerWidth;
+                fScrollHandler.getLayoutParams().height = handlerHeight;
             }
         } finally {
             attributes.recycle();
@@ -86,22 +84,72 @@ public abstract class AbstractRecyclerViewFastScroller extends FrameLayout imple
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        Log.i("TONY -- Func_s", " onTouch() .(AbstractRecyclerViewFastScroller.java:73)");
-        return fGestureDetector.onTouchEvent(event);
+        int action = event.getAction();
+        switch (action) {
+            case MotionEvent.ACTION_DOWN:
+                unbindRecyclerView();
+                break;
+            case MotionEvent.ACTION_UP:
+                bindRecyclerView(mRecyclerView);
+                break;
+            default:
+                break;
+        }
+
+        return fHandlerGestureDetector.onTouchEvent(event);
     }
+
+    @Override
+    public void bindRecyclerView(RecyclerView recyclerView) {
+        mRecyclerView = recyclerView;
+        mRecyclerView.addOnScrollListener(getRecyclerViewScrollListener());
+    }
+
+    @Override
+    public void unbindRecyclerView() {
+        if (mRecyclerView != null) {
+            mRecyclerView.removeOnScrollListener(getRecyclerViewScrollListener());
+        }
+    }
+
+    /**
+     * @return : returns the maximum height, in pixels, that the scroller can scroll.
+     */
+    protected float getHandlerMaxScrollableHeight() {
+        return fScrollBar.getHeight() - fScrollHandler.getHeight();
+    }
+
+    /**
+     * Get a OnScrollListener to listen for bounded recycler view's onScroll event.
+     * @return recycler view onScrollListener
+     */
+    protected abstract RecyclerView.OnScrollListener getRecyclerViewScrollListener();
 
     /**
      * @return the Gesture listener implementation with respect to the orientation (vertical | horizontal) of
      * the child implementation.
      */
-    protected abstract GestureDetector.OnGestureListener getOnGestureListener();
+    protected abstract GestureDetector.OnGestureListener getHandlerGestureListener();
+
+    /**
+     * Sync the recycler view's position with the handler's current position.
+     * Typically to be called every time user scrolls to a new handler position.
+     * @param handlerCurrentPosition : the current position of the scroll bar handler.
+     */
+    protected abstract void syncRecyclerViewPosition(float handlerCurrentPosition);
+
+    /**
+     * Sync the handler info view's position with the handler's current position.
+     * Typically to be called every time user scrolls to a new handler position.
+     * @param handlerCurrentPosition : the current position of the scroll bar handler.
+     */
+    protected abstract void syncHandlerInfoViewPosition(float handlerCurrentPosition);
 
     /**
      * Attaches a auxiliary info view next to the handler for displaying information while scrolling.
      *
      * @param view : the info view to be attachment.
      * @param @HandlerInfoViewPlacement : the placement of that view relative to the position of the scroll handler.
-
      */
     public abstract void attachHandlerInfoView(View view, @HandlerInfoViewPlacement int placement);
 }
