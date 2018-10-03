@@ -31,7 +31,7 @@ public class VerticalFastScrollFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_scroll_vertical, container, false);
 
         VerticalRecyclerViewFastScroller fastScroller = rootView.findViewById(R.id.fast_scroller);
-        fastScroller.attachHandlerInfoView(scrollerInfoView, AbstractRecyclerViewFastScroller.HandlerInfoViewPlacement.LEFT);
+        fastScroller.attachHandlerInfoView(scrollerInfoView, AbstractRecyclerViewFastScroller.LEFT);
 
         return rootView;
     }

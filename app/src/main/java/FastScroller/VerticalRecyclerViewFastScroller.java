@@ -83,7 +83,7 @@ public class VerticalRecyclerViewFastScroller extends AbstractRecyclerViewFastSc
      *                    }
      */
     @Override
-    public void attachHandlerInfoView(View view, HandlerInfoViewPlacement placement) {
+    public void attachHandlerInfoView(View view, @HandlerInfoViewPlacement int placement) {
         mHandlerInfoView = view;
         switch (placement) {
             case LEFT:
@@ -94,10 +94,8 @@ public class VerticalRecyclerViewFastScroller extends AbstractRecyclerViewFastSc
                 break;
             default:
                 throw new IllegalStateException(String.format("Cannot attach scroll handler info view with " +
-                        "placement %s.  Only %s and %s placements are allowed for %s.",
+                        "placement %s.  Only left and right placements are allowed for %s.",
                         placement,
-                        HandlerInfoViewPlacement.LEFT,
-                        HandlerInfoViewPlacement.RIGHT,
                         VerticalRecyclerViewFastScroller.class.getSimpleName())
                 );
         }

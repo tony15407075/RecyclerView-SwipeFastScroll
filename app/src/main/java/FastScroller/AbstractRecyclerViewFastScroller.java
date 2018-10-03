@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
@@ -20,6 +21,10 @@ import android.widget.ImageView;
 
 import com.example.android.recyclerview_swipefastscroll.R;
 
+import java.lang.annotation.Retention;
+
+import static java.lang.annotation.RetentionPolicy.CLASS;
+
 
 /**
  * Created by tonychiu25 on 2018-10-02.
@@ -27,8 +32,18 @@ import com.example.android.recyclerview_swipefastscroll.R;
 
 public abstract class AbstractRecyclerViewFastScroller extends FrameLayout implements View.OnTouchListener {
 
+
+    public static final int LEFT = 0;
+    public static final int RIGHT = 1;
+    public static final int TOP = 2;
+    public static final int BOTTOM = 3;
+
+    @IntDef({LEFT, RIGHT, TOP, BOTTOM})
+    @Retention(CLASS)
+    public @interface HandlerInfoViewPlacement {}
+
     // Placement of the info bubble view, relative to the scroll handler.
-    public enum HandlerInfoViewPlacement { LEFT, RIGHT, TOP, BOTTOM }
+//    public enum HandlerInfoViewPlacement { LEFT, RIGHT, TOP, BOTTOM }
 
     private static final int[] STYLEABLE = R.styleable.AbstractRecyclerViewFastScroller;
 
@@ -85,7 +100,8 @@ public abstract class AbstractRecyclerViewFastScroller extends FrameLayout imple
      * Attaches a auxiliary info view next to the handler for displaying information while scrolling.
      *
      * @param view : the info view to be attachment.
-     * @param placement : the placement of that view relative to the position of the scroll handler.
+     * @param @HandlerInfoViewPlacement : the placement of that view relative to the position of the scroll handler.
+
      */
-    public abstract void attachHandlerInfoView(View view, HandlerInfoViewPlacement placement);
+    public abstract void attachHandlerInfoView(View view, @HandlerInfoViewPlacement int placement);
 }
