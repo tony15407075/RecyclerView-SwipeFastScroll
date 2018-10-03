@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="AbstractRecyclerViewFastScroller">
+        <attr name="scroll_handler_background" format="reference" />
+        <attr name="scroll_handler_width" format="dimension" />
+        <attr name="scroll_handler_height" format="dimension" />
+    </declare-styleable>
+
+
+</resources>

@@ -76,12 +76,12 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_camera) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.fragment_container, new VerticalFastScrollFragment())
+                    .replace(R.id.container, new VerticalFastScrollFragment())
                     .commit();
         } else if (id == R.id.nav_gallery) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.fragment_container, new HorizontalFastScrollFragment())
+                    .replace(R.id.container, new HorizontalFastScrollFragment())
                     .commit();
         }
 

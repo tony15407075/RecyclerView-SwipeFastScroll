@@ -9,6 +9,9 @@ import android.view.ViewGroup;
 
 import com.example.android.recyclerview_swipefastscroll.R;
 
+import FastScroller.AbstractRecyclerViewFastScroller;
+import FastScroller.VerticalRecyclerViewFastScroller;
+
 /**
  * A simple {@link Fragment} subclass.
  */
@@ -22,8 +25,15 @@ public class VerticalFastScrollFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View scrollerInfoView = inflater.inflate(R.layout.fast_scroller_info_bubble, container, false);
+
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_vertical_fast_scroll, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_scroll_vertical, container, false);
+
+        VerticalRecyclerViewFastScroller fastScroller = rootView.findViewById(R.id.fast_scroller);
+        fastScroller.attachHandlerInfoView(scrollerInfoView, AbstractRecyclerViewFastScroller.HandlerInfoViewPlacement.LEFT);
+
+        return rootView;
     }
 
 }
