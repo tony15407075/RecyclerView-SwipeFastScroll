@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import com.example.android.recyclerview_swipefastscroll.R;
 
 import FastScroller.AbstractRecyclerViewFastScroller;
-import FastScroller.ScrollHandlerListener;
+import FastScroller.FastScrollHandlerListener;
 import FastScroller.VerticalRecyclerViewFastScroller;
 
 /**
@@ -110,7 +110,7 @@ public class VerticalFastScrollFragment extends Fragment {
             }
         });
         mFastScroller.bindRecyclerView(mRecyclerView);
-        mFastScroller.setScrollHandlerListener(new ScrollHandlerListener() {
+        mFastScroller.setScrollHandlerListener(new FastScrollHandlerListener() {
             @Override
             public void onHandlerScrollStart() {
                 Log.i("TONY -- Func_s", " onHandlerScrollStart() .(VerticalFastScrollFragment.java:115)");

@@ -51,7 +51,7 @@ public abstract class AbstractRecyclerViewFastScroller extends FrameLayout
     protected final GestureDetectorCompat fHandlerGestureDetector;
 
     protected RecyclerView mRecyclerView;
-    private ScrollHandlerListener mScrollHandlerListener;
+    private FastScrollHandlerListener mFastScrollHandlerListener;
 
     public AbstractRecyclerViewFastScroller(@NonNull Context context, @Nullable AttributeSet attrs, int layoutResource) {
         super(context, attrs);
@@ -94,15 +94,15 @@ public abstract class AbstractRecyclerViewFastScroller extends FrameLayout
                 mRecyclerView.stopScroll();
                 fRootConstraintContainer.clearAnimation();
 
-                if (mScrollHandlerListener != null) {
-                    mScrollHandlerListener.onHandlerScrollStart();
+                if (mFastScrollHandlerListener != null) {
+                    mFastScrollHandlerListener.onHandlerScrollStart();
                 }
                 break;
             case MotionEvent.ACTION_UP:
                 bindRecyclerView(mRecyclerView);
 
-                if (mScrollHandlerListener != null) {
-                    mScrollHandlerListener.onHandlerScrollEnd();
+                if (mFastScrollHandlerListener != null) {
+                    mFastScrollHandlerListener.onHandlerScrollEnd();
                 }
                 
                 break;
@@ -149,8 +149,8 @@ public abstract class AbstractRecyclerViewFastScroller extends FrameLayout
     }
 
     @Override
-    public void setScrollHandlerListener(ScrollHandlerListener scrollHandlerListener) {
-        mScrollHandlerListener = scrollHandlerListener;
+    public void setScrollHandlerListener(FastScrollHandlerListener fastScrollHandlerListener) {
+        mFastScrollHandlerListener = fastScrollHandlerListener;
     }
 
     @Override
