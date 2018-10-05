@@ -72,7 +72,22 @@ public class VerticalRecyclerViewFastScroller extends AbstractRecyclerViewFastSc
             float infoViewYPosCenter= handlerCurrentY + (fScrollHandler.getHeight() / 2);
             float infoViewHeight = mHandlerInfoView.getHeight();
             float infoViewYTop = infoViewYPosCenter - (infoViewHeight / 2);
-            mHandlerInfoView.setY(infoViewYTop);
+
+            float infoViewTopMin = 0.0f;
+            float infoViewTopMax = fScrollBar.getHeight() - infoViewHeight;
+
+            // Should not be less than infoViewTopMin
+            if (infoViewYTop < infoViewTopMin) {
+                mHandlerInfoView.setY(infoViewTopMin);
+            }
+            // Should not be larger than infoViewTopMax
+            else if (infoViewYTop > infoViewTopMax) {
+                mHandlerInfoView.setY(infoViewTopMax);
+            }
+            // Within range of [min, max], can then safely set that value.
+            else {
+                mHandlerInfoView.setY(infoViewYTop);
+            }
         }
     }
 
