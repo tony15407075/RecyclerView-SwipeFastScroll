@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import android.view.ViewGroup;
 import com.example.android.recyclerview_swipefastscroll.R;
 
 import FastScroller.AbstractRecyclerViewFastScroller;
+import FastScroller.ScrollHandlerListener;
 import FastScroller.VerticalRecyclerViewFastScroller;
 
 /**
@@ -90,7 +92,35 @@ public class VerticalFastScrollFragment extends Fragment {
         // in content do not change the layout size of the RecyclerView
         mRecyclerView.setHasFixedSize(true);
 
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                switch (newState) {
+                    case RecyclerView.SCROLL_STATE_IDLE:
+                        mFastScroller.hide(R.anim.right_slide_out);
+                        break;
+                    case RecyclerView.SCROLL_STATE_DRAGGING:
+                        mFastScroller.show(R.anim.right_slide_in);
+                        break;
+                    case RecyclerView.SCROLL_STATE_SETTLING:
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
         mFastScroller.bindRecyclerView(mRecyclerView);
+        mFastScroller.setScrollHandlerListener(new ScrollHandlerListener() {
+            @Override
+            public void onHandlerScrollStart() {
+                Log.i("TONY -- Func_s", " onHandlerScrollStart() .(VerticalFastScrollFragment.java:115)");
+            }
+
+            @Override
+            public void onHandlerScrollEnd() {
+                Log.i("TONY -- Func_s", " onHandlerScrollEnd() .(VerticalFastScrollFragment.java:121)");
+            }
+        });
 
         // use a linear layout manager
         mLayoutManager = new GridLayoutManager(getContext(), 3);

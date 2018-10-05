@@ -16,6 +16,8 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
@@ -31,7 +33,7 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
  */
 
 public abstract class AbstractRecyclerViewFastScroller extends FrameLayout
-        implements View.OnTouchListener, RecyclerViewScroller {
+        implements View.OnTouchListener, RecyclerViewFastScroller {
 
     public static final int LEFT = 0;
     public static final int RIGHT = 1;
@@ -49,6 +51,7 @@ public abstract class AbstractRecyclerViewFastScroller extends FrameLayout
     protected final GestureDetectorCompat fHandlerGestureDetector;
 
     protected RecyclerView mRecyclerView;
+    private ScrollHandlerListener mScrollHandlerListener;
 
     public AbstractRecyclerViewFastScroller(@NonNull Context context, @Nullable AttributeSet attrs, int layoutResource) {
         super(context, attrs);
@@ -88,9 +91,20 @@ public abstract class AbstractRecyclerViewFastScroller extends FrameLayout
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 unbindRecyclerView();
+                mRecyclerView.stopScroll();
+                fRootConstraintContainer.clearAnimation();
+
+                if (mScrollHandlerListener != null) {
+                    mScrollHandlerListener.onHandlerScrollStart();
+                }
                 break;
             case MotionEvent.ACTION_UP:
                 bindRecyclerView(mRecyclerView);
+
+                if (mScrollHandlerListener != null) {
+                    mScrollHandlerListener.onHandlerScrollEnd();
+                }
+                
                 break;
             default:
                 break;
@@ -100,7 +114,47 @@ public abstract class AbstractRecyclerViewFastScroller extends FrameLayout
     }
 
     @Override
-    public void bindRecyclerView(RecyclerView recyclerView) {
+    public void show(int... animationResId) {
+        if (fRootConstraintContainer.getVisibility() == View.VISIBLE) {
+            return;
+        }
+
+        fRootConstraintContainer.setVisibility(View.VISIBLE);
+        if (animationResId.length > 0) {
+            Animation animation = AnimationUtils.loadAnimation(getContext(), animationResId[0]);
+            fRootConstraintContainer.startAnimation(animation);
+        }
+    }
+
+    @Override
+    public void hide(int... animationResId) {
+        boolean isHidden = fRootConstraintContainer.getVisibility() != View.VISIBLE;
+        if (isHidden) {
+            return;
+        }
+
+        if (animationResId.length > 0) {
+            Animation animation = AnimationUtils.loadAnimation(getContext(), animationResId[0]);
+            animation.setAnimationListener(new Animation.AnimationListener() {
+                @Override public void onAnimationStart(Animation animation) {}
+                @Override public void onAnimationRepeat(Animation animation) {}
+                @Override public void onAnimationEnd(Animation animation) {
+                    fRootConstraintContainer.setVisibility(View.INVISIBLE);
+                }
+            });
+            fRootConstraintContainer.startAnimation(animation);
+        } else {
+            fRootConstraintContainer.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    @Override
+    public void setScrollHandlerListener(ScrollHandlerListener scrollHandlerListener) {
+        mScrollHandlerListener = scrollHandlerListener;
+    }
+
+    @Override
+    public void bindRecyclerView(@NonNull RecyclerView recyclerView) {
         mRecyclerView = recyclerView;
         mRecyclerView.addOnScrollListener(getRecyclerViewScrollListener());
     }
