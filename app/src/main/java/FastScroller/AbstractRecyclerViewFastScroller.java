@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.view.GestureDetectorCompat;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
@@ -104,7 +105,9 @@ public abstract class AbstractRecyclerViewFastScroller extends FrameLayout
                 if (mFastScrollHandlerListener != null) {
                     mFastScrollHandlerListener.onHandlerScrollEnd();
                 }
-                
+                break;
+            case MotionEvent.ACTION_MOVE:
+                propagateHandlerScrollEvent();
                 break;
             default:
                 break;
@@ -163,6 +166,17 @@ public abstract class AbstractRecyclerViewFastScroller extends FrameLayout
     public void unbindRecyclerView() {
         if (mRecyclerView != null) {
             mRecyclerView.removeOnScrollListener(getRecyclerViewScrollListener());
+        }
+    }
+
+    /**
+     * Propagate the scroll event back to the caller who initially setup the listener
+     * via the setter {@link #setScrollHandlerListener(FastScrollHandlerListener)}
+     */
+    protected void propagateHandlerScrollEvent() {
+        if (mFastScrollHandlerListener != null) {
+            int itemPosition = ((LinearLayoutManager) mRecyclerView.getLayoutManager()).findFirstCompletelyVisibleItemPosition();
+            mFastScrollHandlerListener.onHandlerScrolling(itemPosition);
         }
     }
 

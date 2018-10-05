@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.example.android.recyclerview_swipefastscroll.R;
 
@@ -63,6 +64,7 @@ public class VerticalFastScrollFragment extends Fragment {
             "DATA","DATA","DATA","DATA","DATA","DATA","DATA","DATA","DATA",
     };
     private VerticalRecyclerViewFastScroller mFastScroller;
+    private TextView mTvScrollInfo;
 
     public VerticalFastScrollFragment() {
         // Required empty public constructor
@@ -80,6 +82,8 @@ public class VerticalFastScrollFragment extends Fragment {
 
     private void initVerticalFastScroller(LayoutInflater inflater, ViewGroup container, View rootView) {
         View scrollerInfoView = inflater.inflate(R.layout.fast_scroller_info_bubble, container, false);
+
+        mTvScrollInfo = scrollerInfoView.findViewById(R.id.tv_scroller_info);
         mFastScroller = rootView.findViewById(R.id.fast_scroller);
         mFastScroller.attachHandlerInfoView(scrollerInfoView, AbstractRecyclerViewFastScroller.LEFT);
     }
@@ -119,6 +123,11 @@ public class VerticalFastScrollFragment extends Fragment {
             @Override
             public void onHandlerScrollEnd() {
                 Log.i("TONY -- Func_s", " onHandlerScrollEnd() .(VerticalFastScrollFragment.java:121)");
+            }
+
+            @Override
+            public void onHandlerScrolling(int itemPosition) {
+                mTvScrollInfo.setText(String.valueOf(itemPosition));
             }
         });
 

@@ -135,6 +135,8 @@ public class VerticalRecyclerViewFastScroller extends AbstractRecyclerViewFastSc
 
                     fScrollHandler.setY(scrollHandleYPos);
                     syncHandlerInfoViewPosition(scrollHandleYPos);
+
+                    propagateHandlerScrollEvent();
                 }
             };
         }
