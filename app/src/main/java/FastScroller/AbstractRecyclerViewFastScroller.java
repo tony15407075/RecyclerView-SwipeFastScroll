@@ -46,6 +46,7 @@ public abstract class AbstractRecyclerViewFastScroller extends FrameLayout
 
     private static final int[] STYLEABLE = R.styleable.AbstractRecyclerViewFastScroller;
 
+    protected final boolean fIsShowHideWhenScroll;      // Automatically show/hide the fast scroller on scroll begin & end
     protected final ConstraintLayout fRootConstraintContainer;
     protected final View fScrollBar;
     protected final ImageView fScrollHandler;
@@ -80,6 +81,11 @@ public abstract class AbstractRecyclerViewFastScroller extends FrameLayout
                 fScrollHandler.setImageDrawable(handlerDrawable);
                 fScrollHandler.getLayoutParams().width = handlerWidth;
                 fScrollHandler.getLayoutParams().height = handlerHeight;
+            }
+
+            fIsShowHideWhenScroll = attributes.getBoolean(R.styleable.AbstractRecyclerViewFastScroller_auto_show_hide_when_scrolled, true);
+            if (fIsShowHideWhenScroll) {
+                fRootConstraintContainer.setVisibility(View.INVISIBLE);
             }
         } finally {
             attributes.recycle();

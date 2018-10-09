@@ -5,6 +5,7 @@
         <attr name="scroll_handler_background" format="reference" />
         <attr name="scroll_handler_width" format="dimension" />
         <attr name="scroll_handler_height" format="dimension" />
+        <attr name="auto_show_hide_when_scrolled" format="boolean" />
     </declare-styleable>
 
 
