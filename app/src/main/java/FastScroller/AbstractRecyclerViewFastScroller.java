@@ -92,25 +92,16 @@ public abstract class AbstractRecyclerViewFastScroller extends FrameLayout
         }
     }
 
+    // Listener called when interacts with the scroll handlers
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         int action = event.getAction();
         switch (action) {
             case MotionEvent.ACTION_DOWN:
-                unbindRecyclerView();
-                mRecyclerView.stopScroll();
-                fRootConstraintContainer.clearAnimation();
-
-                if (mFastScrollHandlerListener != null) {
-                    mFastScrollHandlerListener.onHandlerScrollStart();
-                }
+                onHandlerDownPress();
                 break;
             case MotionEvent.ACTION_UP:
-                bindRecyclerView(mRecyclerView);
-
-                if (mFastScrollHandlerListener != null) {
-                    mFastScrollHandlerListener.onHandlerScrollEnd();
-                }
+                onHandlerUp();
                 break;
             case MotionEvent.ACTION_MOVE:
                 propagateHandlerScrollEvent();
@@ -120,6 +111,29 @@ public abstract class AbstractRecyclerViewFastScroller extends FrameLayout
         }
 
         return fHandlerGestureDetector.onTouchEvent(event);
+    }
+
+    private void onHandlerUp() {
+        bindRecyclerView(mRecyclerView);
+
+        // Auto hide the fast scroller if set to true.
+        if (fIsShowHideWhenScroll) {
+            hide(R.anim.right_slide_out);
+        }
+
+        if (mFastScrollHandlerListener != null) {
+            mFastScrollHandlerListener.onHandlerScrollEnd();
+        }
+    }
+
+    private void onHandlerDownPress() {
+        unbindRecyclerView();
+        mRecyclerView.stopScroll();
+        fRootConstraintContainer.clearAnimation();
+
+        if (mFastScrollHandlerListener != null) {
+            mFastScrollHandlerListener.onHandlerScrollStart();
+        }
     }
 
     @Override
