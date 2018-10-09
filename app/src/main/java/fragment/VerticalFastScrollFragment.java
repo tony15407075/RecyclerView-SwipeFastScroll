@@ -96,23 +96,6 @@ public class VerticalFastScrollFragment extends Fragment {
         // in content do not change the layout size of the RecyclerView
         mRecyclerView.setHasFixedSize(true);
 
-        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                switch (newState) {
-                    case RecyclerView.SCROLL_STATE_IDLE:
-                        mFastScroller.hide(R.anim.right_slide_out);
-                        break;
-                    case RecyclerView.SCROLL_STATE_DRAGGING:
-                        mFastScroller.show(R.anim.right_slide_in);
-                        break;
-                    case RecyclerView.SCROLL_STATE_SETTLING:
-                        break;
-                    default:
-                        break;
-                }
-            }
-        });
         mFastScroller.bindRecyclerView(mRecyclerView);
         mFastScroller.setScrollHandlerListener(new FastScrollHandlerListener() {
             @Override

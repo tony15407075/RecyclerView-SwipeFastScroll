@@ -125,6 +125,21 @@ public class VerticalRecyclerViewFastScroller extends AbstractRecyclerViewFastSc
     public RecyclerView.OnScrollListener getRecyclerViewScrollListener() {
         if (mOnScrollListener == null) {
             mOnScrollListener = new RecyclerView.OnScrollListener() {
+
+                @Override
+                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                    switch (newState) {
+                        case RecyclerView.SCROLL_STATE_IDLE:
+                            hide(R.anim.right_slide_out);
+                            break;
+                        case RecyclerView.SCROLL_STATE_DRAGGING:
+                            show(R.anim.right_slide_in);
+                            break;
+                        default:
+                            super.onScrollStateChanged(recyclerView, newState);
+                    }
+                }
+
                 @Override
                 public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                     float recyclerViewScrollYPos = recyclerView.computeVerticalScrollOffset();
