@@ -2,7 +2,7 @@
 <resources>
 
     <declare-styleable name="AbstractRecyclerViewFastScroller">
-        <attr name="scroll_handler_background" format="reference" />
+        <attr name="scroll_handler_custom_drawable" format="reference" />
         <attr name="scroll_handler_background_color" format="color" />
         <attr name="scroll_handler_width" format="dimension" />
         <attr name="scroll_handler_height" format="dimension" />

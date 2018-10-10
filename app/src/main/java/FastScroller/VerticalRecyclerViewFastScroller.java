@@ -135,12 +135,12 @@ public class VerticalRecyclerViewFastScroller extends AbstractRecyclerViewFastSc
                 public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                     switch (newState) {
                         case RecyclerView.SCROLL_STATE_IDLE:
-                            if (fIsShowHideWhenScroll) {
+                            if (fIsAutoShowHide) {
                                 hide(R.anim.right_slide_out);
                             }
                             break;
                         case RecyclerView.SCROLL_STATE_DRAGGING:
-                            if (fIsShowHideWhenScroll) {
+                            if (fIsAutoShowHide) {
                                 show(R.anim.right_slide_in);
                             }
                             break;

@@ -13,7 +13,6 @@ import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -54,7 +53,7 @@ public abstract class AbstractRecyclerViewFastScroller extends FrameLayout
 
     private static final int[] STYLEABLE = R.styleable.AbstractRecyclerViewFastScroller;
 
-    protected final boolean fIsShowHideWhenScroll;      // Automatically show/hide the fast scroller on scroll begin & end
+    protected final boolean fIsAutoShowHide;      // Boolean to control whether scroller will auto show/hide upon scrolling.
     protected final ConstraintLayout fRootConstraintContainer;
     protected final View fSliderBar;
     protected final ImageView fScrollHandler;
@@ -67,69 +66,28 @@ public abstract class AbstractRecyclerViewFastScroller extends FrameLayout
         super(context, attrs);
 
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        layoutInflater.inflate(layoutResource, this, true);
-        fHandlerGestureDetector = new GestureDetectorCompat(context, getHandlerGestureListener());
-        fRootConstraintContainer = findViewById(R.id.scroll_bar_container);
+        if (layoutInflater != null) {
+            layoutInflater.inflate(layoutResource, this, true);
+        }
 
         TypedArray attributes = getContext().getTheme().obtainStyledAttributes(attrs, STYLEABLE, 0, 0);
+        fSliderBar = findViewById(R.id.scroll_bar);
+        fScrollHandler = findViewById(R.id.scroll_handle);
+
+        fHandlerGestureDetector = new GestureDetectorCompat(context, getHandlerGestureListener());
+        fRootConstraintContainer = findViewById(R.id.scroll_bar_container);
+        fIsAutoShowHide = attributes.getBoolean(R.styleable.AbstractRecyclerViewFastScroller_auto_show_hide_when_scrolled, true);
+
         try {
-            // Initialise slider bar
-            fSliderBar = findViewById(R.id.scroll_bar);
-            int sliderBarColor = attributes.getColor(R.styleable.AbstractRecyclerViewFastScroller_slider_bar_color, Color.GRAY);
-            fSliderBar.setBackgroundColor(sliderBarColor);
+            // Draw the slider bar
+            drawSliderBar(attributes);
 
-            int defaultThickness = (int) getResources().getDimension(R.dimen.slider_bar_default_thickness);
-            int sliderThickness = attributes.getDimensionPixelSize(R.styleable.AbstractRecyclerViewFastScroller_slider_bar_thickness, defaultThickness);
+            // Draw the scrollbar handler
+            drawScrollHandler(attributes);
+            attachScrollHandlerGestureListener();
 
-            int orientation = getOrientation();
-            switch (orientation) {
-                case ORIENTATION_VERTICAL:
-                    fSliderBar.getLayoutParams().width = sliderThickness;
-                    break;
-                case ORIENTATION_HORIZONTAL:
-                    // TODO: 2018-10-09 Test horizontal case
-                    fSliderBar.getLayoutParams().height = sliderThickness;
-                    break;
-                default:
-                    throw new IllegalStateException(String.format("Invalid orientation %s", orientation));
-            }
-
-            // Initialise scrollbar handle
-            fScrollHandler = findViewById(R.id.scroll_handle);
-            fScrollHandler.setOnTouchListener(this);
-            Drawable customHandlerDrawable = attributes.getDrawable(R.styleable.AbstractRecyclerViewFastScroller_scroll_handler_background);
-
-            int handlerWidth;
-            int handlerHeight;
-            if (customHandlerDrawable != null) {
-                fScrollHandler.setImageDrawable(customHandlerDrawable);
-                int wrapContent = ViewGroup.LayoutParams.WRAP_CONTENT;
-                handlerWidth = (int) attributes.getDimension(R.styleable.AbstractRecyclerViewFastScroller_scroll_handler_width, wrapContent);
-                handlerHeight = (int) attributes.getDimension(R.styleable.AbstractRecyclerViewFastScroller_scroll_handler_height, wrapContent);
-
-                int handlerBackGroundColor = attributes.getColor(R.styleable.AbstractRecyclerViewFastScroller_scroll_handler_background_color, Color.TRANSPARENT);
-                fScrollHandler.setBackgroundColor(handlerBackGroundColor);
-            } else {
-                int handlerBackGroundColor = attributes.getColor(R.styleable.AbstractRecyclerViewFastScroller_scroll_handler_background_color, Color.GRAY);
-                GradientDrawable defaultHandler = (GradientDrawable) getResources().getDrawable(R.drawable.vertical_handler);
-                defaultHandler.mutate();
-                defaultHandler.setColor(handlerBackGroundColor);
-                fScrollHandler.setImageDrawable(defaultHandler);
-
-                int defaultWidth = fScrollHandler.getLayoutParams().width;
-                int defaultHeight = fScrollHandler.getLayoutParams().height;
-
-                handlerWidth = (int) attributes.getDimension(R.styleable.AbstractRecyclerViewFastScroller_scroll_handler_width, defaultWidth);
-                handlerHeight = (int) attributes.getDimension(R.styleable.AbstractRecyclerViewFastScroller_scroll_handler_height, defaultHeight);
-            }
-
-            fScrollHandler.getLayoutParams().width = handlerWidth;
-            fScrollHandler.getLayoutParams().height = handlerHeight;
-
-            fIsShowHideWhenScroll = attributes.getBoolean(R.styleable.AbstractRecyclerViewFastScroller_auto_show_hide_when_scrolled, true);
-            if (fIsShowHideWhenScroll) {
-                fRootConstraintContainer.setVisibility(View.INVISIBLE);
-            }
+            // Set the fast scroller's visibility upon onCreate().
+            setOnCreateScrollerVisibility();
         } finally {
             attributes.recycle();
         }
@@ -156,26 +114,22 @@ public abstract class AbstractRecyclerViewFastScroller extends FrameLayout
         return fHandlerGestureDetector.onTouchEvent(event);
     }
 
-    private void onHandlerUp() {
-        bindRecyclerView(mRecyclerView);
-
-        // Auto hide the fast scroller if set to true.
-        if (fIsShowHideWhenScroll) {
-            hide(R.anim.right_slide_out);
-        }
-
-        if (mFastScrollHandlerListener != null) {
-            mFastScrollHandlerListener.onHandlerScrollEnd();
-        }
+    @Override
+    public void setScrollHandlerListener(FastScrollHandlerListener fastScrollHandlerListener) {
+        mFastScrollHandlerListener = fastScrollHandlerListener;
     }
 
-    private void onHandlerDownPress() {
-        unbindRecyclerView();
-        mRecyclerView.stopScroll();
-        fRootConstraintContainer.clearAnimation();
+    @Override
+    public void bindRecyclerView(@NonNull RecyclerView recyclerView) {
+        mRecyclerView = recyclerView;
+        mRecyclerView.setVerticalScrollBarEnabled(false);
+        mRecyclerView.addOnScrollListener(getRecyclerViewScrollListener());
+    }
 
-        if (mFastScrollHandlerListener != null) {
-            mFastScrollHandlerListener.onHandlerScrollStart();
+    @Override
+    public void unbindRecyclerView() {
+        if (mRecyclerView != null) {
+            mRecyclerView.removeOnScrollListener(getRecyclerViewScrollListener());
         }
     }
 
@@ -214,22 +168,107 @@ public abstract class AbstractRecyclerViewFastScroller extends FrameLayout
         }
     }
 
-    @Override
-    public void setScrollHandlerListener(FastScrollHandlerListener fastScrollHandlerListener) {
-        mFastScrollHandlerListener = fastScrollHandlerListener;
+    /**
+     * Draws the scroller handler bar
+     * @param attributes {@link TypedArray}
+     */
+    private void drawScrollHandler(TypedArray attributes) {
+        Drawable customHandlerDrawable = attributes.getDrawable(R.styleable.AbstractRecyclerViewFastScroller_scroll_handler_custom_drawable);
+        if (customHandlerDrawable != null) {
+            drawCustomHandler(attributes, customHandlerDrawable);
+        } else {
+            drawDefaultHandler(attributes);
+        }
     }
 
-    @Override
-    public void bindRecyclerView(@NonNull RecyclerView recyclerView) {
-        mRecyclerView = recyclerView;
-        mRecyclerView.setVerticalScrollBarEnabled(false);
-        mRecyclerView.addOnScrollListener(getRecyclerViewScrollListener());
+    /**
+     * Draws a custom scroll handler with a {@link Drawable} passed in by the client.
+     * @param attributes : {@link TypedArray} array
+     * @param customHandlerDrawable : a custom handler {@link Drawable} object
+     */
+    private void drawCustomHandler(TypedArray attributes, Drawable customHandlerDrawable) {
+        fScrollHandler.setImageDrawable(customHandlerDrawable);
+        int wrapContent = ViewGroup.LayoutParams.WRAP_CONTENT;
+        int handlerWidth = (int) attributes.getDimension(R.styleable.AbstractRecyclerViewFastScroller_scroll_handler_width, wrapContent);
+        int handlerHeight = (int) attributes.getDimension(R.styleable.AbstractRecyclerViewFastScroller_scroll_handler_height, wrapContent);
+
+        int handlerBackGroundColor = attributes.getColor(R.styleable.AbstractRecyclerViewFastScroller_scroll_handler_background_color, Color.TRANSPARENT);
+        fScrollHandler.setBackgroundColor(handlerBackGroundColor);
+        fScrollHandler.getLayoutParams().width = handlerWidth;
+        fScrollHandler.getLayoutParams().height = handlerHeight;
     }
 
-    @Override
-    public void unbindRecyclerView() {
-        if (mRecyclerView != null) {
-            mRecyclerView.removeOnScrollListener(getRecyclerViewScrollListener());
+    /**
+     * Draw the default handler {@link Drawable}.
+     * @param attributes : {@link TypedArray}
+     */
+    private void drawDefaultHandler(TypedArray attributes) {
+        int handlerBackGroundColor = attributes.getColor(R.styleable.AbstractRecyclerViewFastScroller_scroll_handler_background_color, Color.GRAY);
+        GradientDrawable defaultHandler = (GradientDrawable) getResources().getDrawable(R.drawable.vertical_handler);
+        defaultHandler.mutate();
+        defaultHandler.setColor(handlerBackGroundColor);
+        fScrollHandler.setImageDrawable(defaultHandler);
+
+        int defaultWidth = fScrollHandler.getLayoutParams().width;
+        int defaultHeight = fScrollHandler.getLayoutParams().height;
+        int handlerWidth = (int) attributes.getDimension(R.styleable.AbstractRecyclerViewFastScroller_scroll_handler_width, defaultWidth);
+        int handlerHeight = (int) attributes.getDimension(R.styleable.AbstractRecyclerViewFastScroller_scroll_handler_height, defaultHeight);
+
+        fScrollHandler.getLayoutParams().width = handlerWidth;
+        fScrollHandler.getLayoutParams().height = handlerHeight;
+    }
+
+    // Set the visibility of the scroller during initial onCreate
+    private void setOnCreateScrollerVisibility() {
+        if (fIsAutoShowHide) {
+            fRootConstraintContainer.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    private void drawSliderBar(TypedArray attributes) {
+        int sliderBarColor = attributes.getColor(R.styleable.AbstractRecyclerViewFastScroller_slider_bar_color, Color.GRAY);
+        fSliderBar.setBackgroundColor(sliderBarColor);
+
+        int defaultThickness = (int) getResources().getDimension(R.dimen.slider_bar_default_thickness);
+        int sliderThickness = attributes.getDimensionPixelSize(R.styleable.AbstractRecyclerViewFastScroller_slider_bar_thickness, defaultThickness);
+        int orientation = getOrientation();
+        switch (orientation) {
+            case ORIENTATION_VERTICAL:
+                fSliderBar.getLayoutParams().width = sliderThickness;
+                break;
+            case ORIENTATION_HORIZONTAL:
+                // TODO: 2018-10-09 Test horizontal case
+                fSliderBar.getLayoutParams().height = sliderThickness;
+                break;
+            default:
+                throw new IllegalStateException(String.format("Invalid orientation %s", orientation));
+        }
+    }
+
+    private void attachScrollHandlerGestureListener() {
+        fScrollHandler.setOnTouchListener(this);
+    }
+
+    private void onHandlerUp() {
+        bindRecyclerView(mRecyclerView);
+
+        // Auto hide the fast scroller if set to true.
+        if (fIsAutoShowHide) {
+            hide(R.anim.right_slide_out);
+        }
+
+        if (mFastScrollHandlerListener != null) {
+            mFastScrollHandlerListener.onHandlerScrollEnd();
+        }
+    }
+
+    private void onHandlerDownPress() {
+        unbindRecyclerView();
+        mRecyclerView.stopScroll();
+        fRootConstraintContainer.clearAnimation();
+
+        if (mFastScrollHandlerListener != null) {
+            mFastScrollHandlerListener.onHandlerScrollStart();
         }
     }
 
