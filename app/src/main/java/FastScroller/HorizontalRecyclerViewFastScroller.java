@@ -100,6 +100,11 @@ public class HorizontalRecyclerViewFastScroller extends AbstractRecyclerViewFast
 
     }
 
+    @Override
+    protected @Orientation int getOrientation() {
+        return ORIENTATION_HORIZONTAL;
+    }
+
     private void attachViewTopOfHandler() {
         ConstraintSet constraintSet = new ConstraintSet();
         fRootConstraintContainer.addView(mHandlerInfoView);

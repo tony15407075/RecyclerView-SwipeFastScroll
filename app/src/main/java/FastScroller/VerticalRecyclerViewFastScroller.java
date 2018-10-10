@@ -120,6 +120,11 @@ public class VerticalRecyclerViewFastScroller extends AbstractRecyclerViewFastSc
         }
     }
 
+    @Override
+    protected @Orientation int getOrientation() {
+        return ORIENTATION_VERTICAL;
+    }
+
     // Listens to recycler view onScroll event.
     @Override
     public RecyclerView.OnScrollListener getRecyclerViewScrollListener() {
