@@ -3,11 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/scroll_bar_container"
     android:layout_width="wrap_content"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:paddingRight="5dp"
+    >
 
     <View
         android:id="@+id/scroll_bar"
-        android:layout_width="1dp"
+        android:layout_width="@dimen/scroll_slider_default_width"
         android:layout_height="match_parent"
         android:background="@android:color/darker_gray"
         app:layout_constraintTop_toTopOf="parent"
@@ -18,8 +20,11 @@
 
     <ImageView
         android:id="@+id/scroll_handle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/scroll_handler_default_width"
+        android:layout_height="0dp"
+        app:layout_constraintHeight_default="percent"
+        app:layout_constraintHeight_percent="0.1"
+        android:background="@drawable/vertical_handler"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         />

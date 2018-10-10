@@ -13,7 +13,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginRight="100dp"
         />
 
     <FastScroller.VerticalRecyclerViewFastScroller
@@ -23,9 +22,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:scroll_handler_background="@drawable/ic_menu_gallery"
-        android:layout_marginTop="60dp"
-        android:layout_marginBottom="60dp"
+        app:auto_show_hide_when_scrolled="false"
+        app:scroll_handler_background_color="@color/colorAccent"
+        app:slider_bar_color="@color/colorPrimaryDark"
         />
 
 </android.support.constraint.ConstraintLayout>

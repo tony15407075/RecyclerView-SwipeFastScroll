@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -12,6 +13,7 @@ import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -95,16 +97,34 @@ public abstract class AbstractRecyclerViewFastScroller extends FrameLayout
             // Initialise scrollbar handle
             fScrollHandler = findViewById(R.id.scroll_handle);
             fScrollHandler.setOnTouchListener(this);
-            Drawable handlerDrawable = attributes.getDrawable(R.styleable.AbstractRecyclerViewFastScroller_scroll_handler_background);
-            if (handlerDrawable != null) {
-                int wrapContent = ViewGroup.LayoutParams.WRAP_CONTENT;
-                int handlerWidth = (int) attributes.getDimension(R.styleable.AbstractRecyclerViewFastScroller_scroll_handler_width, wrapContent);
-                int handlerHeight = (int) attributes.getDimension(R.styleable.AbstractRecyclerViewFastScroller_scroll_handler_height, wrapContent);
+            Drawable customHandlerDrawable = attributes.getDrawable(R.styleable.AbstractRecyclerViewFastScroller_scroll_handler_background);
 
-                fScrollHandler.setImageDrawable(handlerDrawable);
-                fScrollHandler.getLayoutParams().width = handlerWidth;
-                fScrollHandler.getLayoutParams().height = handlerHeight;
+            int handlerWidth;
+            int handlerHeight;
+            if (customHandlerDrawable != null) {
+                fScrollHandler.setImageDrawable(customHandlerDrawable);
+                int wrapContent = ViewGroup.LayoutParams.WRAP_CONTENT;
+                handlerWidth = (int) attributes.getDimension(R.styleable.AbstractRecyclerViewFastScroller_scroll_handler_width, wrapContent);
+                handlerHeight = (int) attributes.getDimension(R.styleable.AbstractRecyclerViewFastScroller_scroll_handler_height, wrapContent);
+
+                int handlerBackGroundColor = attributes.getColor(R.styleable.AbstractRecyclerViewFastScroller_scroll_handler_background_color, Color.TRANSPARENT);
+                fScrollHandler.setBackgroundColor(handlerBackGroundColor);
+            } else {
+                int handlerBackGroundColor = attributes.getColor(R.styleable.AbstractRecyclerViewFastScroller_scroll_handler_background_color, Color.GRAY);
+                GradientDrawable defaultHandler = (GradientDrawable) getResources().getDrawable(R.drawable.vertical_handler);
+                defaultHandler.mutate();
+                defaultHandler.setColor(handlerBackGroundColor);
+                fScrollHandler.setImageDrawable(defaultHandler);
+
+                int defaultWidth = fScrollHandler.getLayoutParams().width;
+                int defaultHeight = fScrollHandler.getLayoutParams().height;
+
+                handlerWidth = (int) attributes.getDimension(R.styleable.AbstractRecyclerViewFastScroller_scroll_handler_width, defaultWidth);
+                handlerHeight = (int) attributes.getDimension(R.styleable.AbstractRecyclerViewFastScroller_scroll_handler_height, defaultHeight);
             }
+
+            fScrollHandler.getLayoutParams().width = handlerWidth;
+            fScrollHandler.getLayoutParams().height = handlerHeight;
 
             fIsShowHideWhenScroll = attributes.getBoolean(R.styleable.AbstractRecyclerViewFastScroller_auto_show_hide_when_scrolled, true);
             if (fIsShowHideWhenScroll) {
@@ -202,6 +222,7 @@ public abstract class AbstractRecyclerViewFastScroller extends FrameLayout
     @Override
     public void bindRecyclerView(@NonNull RecyclerView recyclerView) {
         mRecyclerView = recyclerView;
+        mRecyclerView.setVerticalScrollBarEnabled(false);
         mRecyclerView.addOnScrollListener(getRecyclerViewScrollListener());
     }
 
