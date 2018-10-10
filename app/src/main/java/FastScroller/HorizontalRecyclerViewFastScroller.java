@@ -48,7 +48,7 @@ public class HorizontalRecyclerViewFastScroller extends AbstractRecyclerViewFast
                     scrollHandlerXPos = Math.max(0, scrollHandlerXPos);
                 } else {
                     scrollHandlerXPos += Math.abs(cursorDeltaX);
-                    int scrollViewWidth = fScrollBar.getWidth();
+                    int scrollViewWidth = fSliderBar.getWidth();
                     int scrollHandleWidth = fScrollHandler.getWidth();
 
                     int scrollHandleMaxXPos = scrollViewWidth - scrollHandleWidth;

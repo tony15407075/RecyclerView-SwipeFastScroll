@@ -26,6 +26,10 @@
         app:scroll_handler_background="@drawable/ic_menu_gallery"
         android:layout_marginTop="60dp"
         android:layout_marginBottom="60dp"
+
+        app:auto_show_hide_when_scrolled="false"
+
+        app:slider_bar_color="@android:color/transparent"
         />
 
 </android.support.constraint.ConstraintLayout>

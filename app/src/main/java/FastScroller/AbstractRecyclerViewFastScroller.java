@@ -48,7 +48,7 @@ public abstract class AbstractRecyclerViewFastScroller extends FrameLayout
 
     protected final boolean fIsShowHideWhenScroll;      // Automatically show/hide the fast scroller on scroll begin & end
     protected final ConstraintLayout fRootConstraintContainer;
-    protected final View fScrollBar;
+    protected final View fSliderBar;
     protected final ImageView fScrollHandler;
     protected final GestureDetectorCompat fHandlerGestureDetector;
 
@@ -65,10 +65,11 @@ public abstract class AbstractRecyclerViewFastScroller extends FrameLayout
 
         TypedArray attributes = getContext().getTheme().obtainStyledAttributes(attrs, STYLEABLE, 0, 0);
         try {
-            // Initialise scrollbar
-            fScrollBar = findViewById(R.id.scroll_bar);
-            fScrollBar.setBackgroundColor(Color.GRAY);
-
+            // Initialise slider bar
+            fSliderBar = findViewById(R.id.scroll_bar);
+            int sliderBarColor = attributes.getColor(R.styleable.AbstractRecyclerViewFastScroller_slider_bar_color, Color.GRAY);
+            fSliderBar.setBackgroundColor(sliderBarColor);
+            
             // Initialise scrollbar handle
             fScrollHandler = findViewById(R.id.scroll_handle);
             fScrollHandler.setOnTouchListener(this);
@@ -204,7 +205,7 @@ public abstract class AbstractRecyclerViewFastScroller extends FrameLayout
      * @return : returns the maximum height, in pixels, that the scroller can scroll.
      */
     protected float getHandlerMaxScrollableHeight() {
-        return fScrollBar.getHeight() - fScrollHandler.getHeight();
+        return fSliderBar.getHeight() - fScrollHandler.getHeight();
     }
 
     /**
