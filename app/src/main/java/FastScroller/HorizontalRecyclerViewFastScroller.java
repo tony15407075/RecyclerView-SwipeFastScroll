@@ -81,9 +81,9 @@ public class HorizontalRecyclerViewFastScroller extends AbstractRecyclerViewFast
     }
 
     @Override
-    public void attachHandlerInfoView(View view, @HandlerInfoViewPlacement int placement) {
+    public void attachHandlerInfoView(View view, int horizontalPlacement, int verticalPlacement) {
         mHandlerInfoView = view;
-        switch (placement) {
+        switch (verticalPlacement) {
             case TOP:
                 attachViewTopOfHandler();
                 break;
@@ -93,7 +93,7 @@ public class HorizontalRecyclerViewFastScroller extends AbstractRecyclerViewFast
             default:
                 throw new IllegalStateException(String.format("Cannot attach scroll handler info view with " +
                                 "placement %s.  Only top and bottom placements are allowed for %s.",
-                        placement,
+                        verticalPlacement,
                         getClass().getSimpleName())
                 );
         }

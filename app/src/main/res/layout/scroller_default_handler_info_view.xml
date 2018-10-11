@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/default_handler_info"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:background="@drawable/pointed_circle_shape"
+    >
+
+    <TextView
+        android:id="@+id/default_handler_info_text"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:textSize="@dimen/handler_info_text_large"
+        android:paddingLeft="@dimen/handler_info_margin_small"
+        android:paddingRight="@dimen/handler_info_margin_small"
+        android:layout_gravity="center"
+        android:gravity="center"
+        />
+
+</FrameLayout>

@@ -13,7 +13,6 @@ import android.widget.TextView;
 
 import com.example.android.recyclerview_swipefastscroll.R;
 
-import FastScroller.AbstractRecyclerViewFastScroller;
 import FastScroller.FastScrollHandlerListener;
 import FastScroller.VerticalRecyclerViewFastScroller;
 
@@ -85,7 +84,7 @@ public class VerticalFastScrollFragment extends Fragment {
 
         mTvScrollInfo = scrollerInfoView.findViewById(R.id.tv_scroller_info);
         mFastScroller = rootView.findViewById(R.id.fast_scroller);
-        mFastScroller.attachHandlerInfoView(scrollerInfoView, AbstractRecyclerViewFastScroller.LEFT);
+//        mFastScroller.attachHandlerInfoView(scrollerInfoView, AbstractRecyclerViewFastScroller.LEFT);
     }
 
     private void initRecyclerView(LayoutInflater inflater, ViewGroup container, View rootView) {
@@ -110,7 +109,7 @@ public class VerticalFastScrollFragment extends Fragment {
 
             @Override
             public void onHandlerScrolling(int itemPosition) {
-                mTvScrollInfo.setText(String.valueOf(itemPosition));
+                mFastScroller.setDefaultHandlerInfoText(String.valueOf(itemPosition));
             }
         });
 

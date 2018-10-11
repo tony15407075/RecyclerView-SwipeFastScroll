@@ -23,7 +23,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:auto_show_hide_when_scrolled="false"
-        app:scroll_handler_background_color="@android:color/holo_blue_bright"
-        android:layout_marginRight="10dp" />
+        app:default_scroll_handler_info_position="left|top"
+        />
 
 </android.support.constraint.ConstraintLayout>

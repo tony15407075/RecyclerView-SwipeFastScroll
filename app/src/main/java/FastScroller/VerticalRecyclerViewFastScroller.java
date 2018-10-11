@@ -19,6 +19,7 @@ public class VerticalRecyclerViewFastScroller extends AbstractRecyclerViewFastSc
 
     private View mHandlerInfoView;
     private RecyclerView.OnScrollListener mOnScrollListener;
+    private @HandlerInfoVerticalPlacement int mHandlerInfoVerticalPlacement;
 
     public VerticalRecyclerViewFastScroller(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs, R.layout.vertical_fast_scroll_layout);
@@ -67,27 +68,44 @@ public class VerticalRecyclerViewFastScroller extends AbstractRecyclerViewFastSc
     // Sync the handler info view's position with the handler's current position.
     @Override
     protected void syncHandlerInfoViewPosition(float handlerCurrentY) {
-        if (mHandlerInfoView != null) {
-            // Horizontally align both infoView and scrollHandler
-            float infoViewYPosCenter= handlerCurrentY + (fScrollHandler.getHeight() / 2);
-            float infoViewHeight = mHandlerInfoView.getHeight();
-            float infoViewYTop = infoViewYPosCenter - (infoViewHeight / 2);
+        if (mHandlerInfoView == null) {
+            return;
+        }
 
-            float infoViewTopMin = 0.0f;
-            float infoViewTopMax = fRootConstraintContainer.getHeight() - infoViewHeight;
+        // Horizontally align both infoView and scrollHandler
+        float infoViewHeight = mHandlerInfoView.getHeight();
+        int handlerHeight = fScrollHandler.getHeight();
+        float infoViewYTop;
+        switch (mHandlerInfoVerticalPlacement) {
+            case TOP:
+                infoViewYTop = handlerCurrentY - infoViewHeight;
+                break;
+            case CENTER:
+                float infoViewYPosCenter = handlerCurrentY + (handlerHeight / 2);
+                infoViewYTop = infoViewYPosCenter - (infoViewHeight / 2);
+                break;
+            case BOTTOM:
+                infoViewYTop = handlerCurrentY + handlerHeight;
+                break;
+            default:
+                throw new IllegalStateException("Handler info view has illegal vertical placement, " +
+                        "can only be one of {TOP, CENTER, BOTTOM}");
+        }
 
-            // Should not be less than infoViewTopMin
-            if (infoViewYTop < infoViewTopMin) {
-                mHandlerInfoView.setY(infoViewTopMin);
-            }
-            // Should not be larger than infoViewTopMax
-            else if (infoViewYTop > infoViewTopMax) {
-                mHandlerInfoView.setY(infoViewTopMax);
-            }
-            // Within range of [min, max], can then safely set that value.
-            else {
-                mHandlerInfoView.setY(infoViewYTop);
-            }
+        float infoViewTopMin = 0.0f;
+        float infoViewTopMax = fRootConstraintContainer.getHeight() - infoViewHeight;
+
+        // Should not be less than infoViewTopMin
+        if (infoViewYTop < infoViewTopMin) {
+            mHandlerInfoView.setY(infoViewTopMin);
+        }
+        // Should not be larger than infoViewTopMax
+        else if (infoViewYTop > infoViewTopMax) {
+            mHandlerInfoView.setY(infoViewTopMax);
+        }
+        // Within range of [min, max], can then safely set that value.
+        else {
+            mHandlerInfoView.setY(infoViewYTop);
         }
     }
 
@@ -95,16 +113,20 @@ public class VerticalRecyclerViewFastScroller extends AbstractRecyclerViewFastSc
      * Attaches a auxiliary info view next to the handler for displaying information while scrolling.
      *
      * @param view : the info view to be attachment.
-     * @param placement : the placement of that view relative to the position of the scroll handler.
-     *                    {
-     *                      @link AbstractRecyclerViewFastScroller.HandlerInfoViewPlacement.LEFT or
-     *                      @link AbstractRecyclerViewFastScroller.HandlerInfoViewPlacement.RIGHT
-     *                    }
+     * @param horizontalPlacement : the horizontal placement of that view relative to the position of the scroll handler.
+     *                              {@link HandlerInfoHorizontalPlacement}
+     * @param verticalPlacement : the vertical placement of that view relative to the position of the scroll handler.
+     *                              {@link HandlerInfoVerticalPlacement}
+     *
      */
     @Override
-    public void attachHandlerInfoView(View view, @HandlerInfoViewPlacement int placement) {
+    public void attachHandlerInfoView(View view,
+                                      @HandlerInfoHorizontalPlacement int horizontalPlacement,
+                                      @HandlerInfoVerticalPlacement int verticalPlacement) {
         mHandlerInfoView = view;
-        switch (placement) {
+        mHandlerInfoVerticalPlacement = verticalPlacement;
+
+        switch (horizontalPlacement) {
             case LEFT:
                 attachViewLeftOfHandler();
                 break;
@@ -114,7 +136,7 @@ public class VerticalRecyclerViewFastScroller extends AbstractRecyclerViewFastSc
             default:
                 throw new IllegalStateException(String.format("Cannot attach scroll handler info view with " +
                         "placement %s.  Only left and right placements are allowed for %s.",
-                        placement,
+                        horizontalPlacement,
                         VerticalRecyclerViewFastScroller.class.getSimpleName())
                 );
         }

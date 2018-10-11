@@ -29,7 +29,6 @@ public class HorizontalFastScrollFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_scroll_horizontal, container, false);
 
         HorizontalRecyclerViewFastScroller fastScroller = rootView.findViewById(R.id.fast_scroller);
-        fastScroller.attachHandlerInfoView(scrollerInfoView, AbstractRecyclerViewFastScroller.TOP);
 
         return rootView;
     }

@@ -5,6 +5,7 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -13,6 +14,7 @@ import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -22,6 +24,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.example.android.recyclerview_swipefastscroll.R;
 
@@ -37,13 +40,30 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
 public abstract class AbstractRecyclerViewFastScroller extends FrameLayout
         implements View.OnTouchListener, RecyclerViewFastScroller {
 
-    public static final int LEFT = 0;
-    public static final int RIGHT = 1;
-    public static final int TOP = 2;
-    public static final int BOTTOM = 3;
-    @IntDef({LEFT, RIGHT, TOP, BOTTOM})
+    public static final int LEFT = 0b00001;     // 1
+    public static final int RIGHT = 0b00010;    // 2
+    public static final int TOP = 0b00100;      // 4
+    public static final int CENTER = 0b01000;   // 8
+    public static final int BOTTOM = 0b10000;   // 16
+
+    @IntDef({LEFT, RIGHT})
     @Retention(CLASS)
-    @interface HandlerInfoViewPlacement {}
+    @interface HandlerInfoHorizontalPlacement {}
+
+    @IntDef({TOP, CENTER, BOTTOM})
+    @Retention(CLASS)
+    @interface HandlerInfoVerticalPlacement {}
+
+    public static final int HANDLER_INFO_VIEW_LARGE = 1;
+    public static final int HANDLER_INFO_VIEW_MEDIUM = 2;
+    public static final int HANDLER_INFO_VIEW_SMALL = 3;
+
+    public static final int HANDLER_INFO_POSITION_LEFT_TOP = LEFT | TOP;
+    public static final int HANDLER_INFO_POSITION_LEFT_CENTER = LEFT | CENTER;
+    public static final int HANDLER_INFO_POSITION_LEFT_BOTTOM = LEFT | BOTTOM;
+    public static final int HANDLER_INFO_POSITION_RIGHT_TOP = RIGHT | TOP;
+    public static final int HANDLER_INFO_POSITION_RIGHT_CENTER = RIGHT | CENTER;
+    public static final int HANDLER_INFO_POSITION_RIGHT_BOTTOM = RIGHT | BOTTOM;
 
     private static final int[] STYLEABLE = R.styleable.AbstractRecyclerViewFastScroller;
 
@@ -54,6 +74,7 @@ public abstract class AbstractRecyclerViewFastScroller extends FrameLayout
 
     protected RecyclerView mRecyclerView;
     private FastScrollHandlerListener mFastScrollHandlerListener;
+    private TextView fDefaultHandlerInfoTextView;
 
     public AbstractRecyclerViewFastScroller(@NonNull Context context, @Nullable AttributeSet attrs, int layoutResource) {
         super(context, attrs);
@@ -63,21 +84,96 @@ public abstract class AbstractRecyclerViewFastScroller extends FrameLayout
             layoutInflater.inflate(layoutResource, this, true);
         }
 
-        TypedArray attributes = getContext().getTheme().obtainStyledAttributes(attrs, STYLEABLE, 0, 0);
         fScrollHandler = findViewById(R.id.scroll_handle);
         fHandlerGestureDetector = new GestureDetectorCompat(context, getHandlerGestureListener());
         fRootConstraintContainer = findViewById(R.id.scroll_bar_container);
-        fIsAutoShowHide = attributes.getBoolean(R.styleable.AbstractRecyclerViewFastScroller_auto_show_hide_when_scrolled, true);
 
+        TypedArray attributes = getContext().getTheme().obtainStyledAttributes(attrs, STYLEABLE, 0, 0);
         try {
+            fIsAutoShowHide = attributes.getBoolean(R.styleable.AbstractRecyclerViewFastScroller_auto_show_hide_when_scrolled, true);
+            boolean isShowDefaultHandlerInfo = !attributes.getBoolean(R.styleable.AbstractRecyclerViewFastScroller_default_scroll_handler_info_hide, false);
+
             // Draw the scrollbar handler
             drawScrollHandler(attributes);
             attachScrollHandlerGestureListener();
+
+            // Draw the scroll handler info bubble
+            if (isShowDefaultHandlerInfo) {
+                drawDefaultHandlerInfoView(layoutInflater, attributes);
+            }
 
             // Set the fast scroller's visibility upon onCreate().
             setOnCreateScrollerVisibility();
         } finally {
             attributes.recycle();
+        }
+    }
+
+    private void drawDefaultHandlerInfoView(LayoutInflater layoutInflater, TypedArray attributes) {
+        int defaultBGColor = getResources().getColor(R.color.default_handler_info_bg_color);
+        int defaultTextColor = getResources().getColor(R.color.default_handler_info_text_color);
+
+        int backgroundColor = attributes.getColor(R.styleable.AbstractRecyclerViewFastScroller_default_scroll_handler_info_bg_color, defaultBGColor);
+        int textColor = attributes.getColor(R.styleable.AbstractRecyclerViewFastScroller_default_scroll_handler_info_text_color, defaultTextColor);
+        int infoViewSizeType = attributes.getInteger(R.styleable.AbstractRecyclerViewFastScroller_default_handler_info_size, HANDLER_INFO_VIEW_MEDIUM);
+        int positionBitFlags = attributes.getInteger(R.styleable.AbstractRecyclerViewFastScroller_default_scroll_handler_info_position, HANDLER_INFO_POSITION_LEFT_TOP);
+
+        View defaultHandlerInfoView = layoutInflater.inflate(R.layout.scroller_default_handler_info_view, this, false);
+        fDefaultHandlerInfoTextView = defaultHandlerInfoView.findViewById(R.id.default_handler_info_text);
+        fDefaultHandlerInfoTextView.setTextColor(textColor);
+
+        float textSize;
+        switch (infoViewSizeType) {
+            case HANDLER_INFO_VIEW_LARGE:
+                textSize = getResources().getDimensionPixelSize(R.dimen.handler_info_text_large);
+                break;
+            case HANDLER_INFO_VIEW_MEDIUM:
+                textSize = getResources().getDimensionPixelSize(R.dimen.handler_info_text_medium);
+                break;
+            case HANDLER_INFO_VIEW_SMALL:
+                textSize = getResources().getDimensionPixelSize(R.dimen.handler_info_text_small);
+                break;
+            default:
+                throw new IllegalStateException(String.format("Illegal infoViewSizeType %s", infoViewSizeType));
+        }
+        fDefaultHandlerInfoTextView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
+
+        GradientDrawable defaultHandlerBG = (GradientDrawable) getResources().getDrawable(R.drawable.pointed_circle_shape);
+        defaultHandlerBG.mutate();
+        defaultHandlerBG.setColor(backgroundColor);
+
+        defaultHandlerInfoView.setBackgroundDrawable(defaultHandlerBG);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            defaultHandlerInfoView.setBackground(defaultHandlerBG);
+        } else {
+            defaultHandlerInfoView.setBackgroundDrawable(defaultHandlerBG);
+        }
+
+        switch (positionBitFlags) {
+            case HANDLER_INFO_POSITION_LEFT_TOP:
+                attachHandlerInfoView(defaultHandlerInfoView, LEFT, TOP);
+                break;
+            case HANDLER_INFO_POSITION_LEFT_CENTER:
+                attachHandlerInfoView(defaultHandlerInfoView, LEFT, CENTER);
+                break;
+            case HANDLER_INFO_POSITION_LEFT_BOTTOM:
+                attachHandlerInfoView(defaultHandlerInfoView, LEFT, BOTTOM);
+                break;
+            case HANDLER_INFO_POSITION_RIGHT_TOP:
+                attachHandlerInfoView(defaultHandlerInfoView, RIGHT, TOP);
+                break;
+            case HANDLER_INFO_POSITION_RIGHT_CENTER:
+                attachHandlerInfoView(defaultHandlerInfoView, RIGHT, CENTER);
+                break;
+            case HANDLER_INFO_POSITION_RIGHT_BOTTOM:
+                attachHandlerInfoView(defaultHandlerInfoView, RIGHT, BOTTOM);
+                break;
+            default:
+                throw new IllegalStateException("Illegal Handler Position!  " +
+                        "Can only be one of " +
+                        "top|left, top|right," +
+                        "center|left, center|left," +
+                        "bottom|left, bottom|left");
         }
     }
 
@@ -154,6 +250,11 @@ public abstract class AbstractRecyclerViewFastScroller extends FrameLayout
         } else {
             fRootConstraintContainer.setVisibility(View.INVISIBLE);
         }
+    }
+
+    @Override
+    public void setDefaultHandlerInfoText(String handlerInfoText) {
+        fDefaultHandlerInfoTextView.setText(handlerInfoText);
     }
 
     /**
@@ -288,7 +389,10 @@ public abstract class AbstractRecyclerViewFastScroller extends FrameLayout
      * Attaches a auxiliary info view next to the handler for displaying information while scrolling.
      *
      * @param view : the info view to be attachment.
-     * @param @HandlerInfoViewPlacement : the placement of that view relative to the position of the scroll handler.
+     * @param @HandlerInfoHorizontalPlacement : the horizontal placement of that view relative to the position of the scroll handler.
+     * @param @HandlerInfoVerticalPlacement : the vertical placement of that view relative to the position of the scroll handler.
      */
-    public abstract void attachHandlerInfoView(View view, @HandlerInfoViewPlacement int placement);
+    public abstract void attachHandlerInfoView(View view,
+                                               @HandlerInfoHorizontalPlacement int horizontalPlacement,
+                                               @HandlerInfoVerticalPlacement int verticalPlacement);
 }

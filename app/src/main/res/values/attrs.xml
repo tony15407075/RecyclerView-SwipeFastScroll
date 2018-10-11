@@ -7,7 +7,24 @@
         <attr name="scroll_handler_width" format="dimension" />
         <attr name="scroll_handler_height" format="dimension" />
         <attr name="auto_show_hide_when_scrolled" format="boolean" />
-    </declare-styleable>
 
+        <attr name="default_scroll_handler_info_bg_color" format="color" />
+        <attr name="default_scroll_handler_info_text_color" format="color" />
+        <attr name="default_scroll_handler_info_hide" format="boolean" />
+        <attr name="default_handler_info_size" format="integer">
+            <enum name="large" value="1" />
+            <enum name="medium" value="2" />
+            <enum name="small" value="3" />
+        </attr>
+
+        <attr name="default_scroll_handler_info_position">
+            <flag name="left" value="1" />
+            <flag name="right" value="2" />
+            <flag name="top" value="4" />
+            <flag name="center" value="8" />
+            <flag name="bottom" value="16" />
+        </attr>
+
+    </declare-styleable>
 
 </resources>

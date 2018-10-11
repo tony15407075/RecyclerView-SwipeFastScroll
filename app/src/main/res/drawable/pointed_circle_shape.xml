@@ -1,0 +1,16 @@
+<shape
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    >
+
+    <solid
+        android:color="@android:color/white"
+        />
+
+    <corners
+        android:bottomLeftRadius="@dimen/default_handler_info_pointed_circle_radius"
+        android:topLeftRadius="@dimen/default_handler_info_pointed_circle_radius"
+        android:topRightRadius="@dimen/default_handler_info_pointed_circle_radius"
+        android:bottomRightRadius="0dp"
+        />
+
+</shape>

@@ -37,4 +37,10 @@ interface RecyclerViewFastScroller {
      * @param fastScrollHandlerListener : a {@link FastScrollHandlerListener}
      */
     void setScrollHandlerListener(FastScrollHandlerListener fastScrollHandlerListener);
+
+    /**
+     * Set the text value of the default handler info bubble.
+     * @param handlerInfoText : {@link String}
+     */
+    void setDefaultHandlerInfoText(String handlerInfoText);
 }
