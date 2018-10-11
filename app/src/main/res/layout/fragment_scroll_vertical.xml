@@ -23,8 +23,8 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:auto_show_hide_when_scrolled="false"
-        app:scroll_handler_background_color="@color/colorAccent"
-        app:slider_bar_color="@color/colorPrimaryDark"
-        />
+        app:scroll_handler_background_color="@android:color/holo_blue_bright"
+        app:slider_bar_color="@android:color/transparent"
+        android:layout_marginRight="10dp" />
 
 </android.support.constraint.ConstraintLayout>
