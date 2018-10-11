@@ -48,7 +48,7 @@ public class HorizontalRecyclerViewFastScroller extends AbstractRecyclerViewFast
                     scrollHandlerXPos = Math.max(0, scrollHandlerXPos);
                 } else {
                     scrollHandlerXPos += Math.abs(cursorDeltaX);
-                    int scrollViewWidth = fSliderBar.getWidth();
+                    int scrollViewWidth = fRootConstraintContainer.getWidth();
                     int scrollHandleWidth = fScrollHandler.getWidth();
 
                     int scrollHandleMaxXPos = scrollViewWidth - scrollHandleWidth;
@@ -98,11 +98,6 @@ public class HorizontalRecyclerViewFastScroller extends AbstractRecyclerViewFast
                 );
         }
 
-    }
-
-    @Override
-    protected @Orientation int getOrientation() {
-        return ORIENTATION_HORIZONTAL;
     }
 
     private void attachViewTopOfHandler() {

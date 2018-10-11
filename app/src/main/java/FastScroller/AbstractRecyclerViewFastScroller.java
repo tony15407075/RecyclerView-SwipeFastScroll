@@ -37,12 +37,6 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
 public abstract class AbstractRecyclerViewFastScroller extends FrameLayout
         implements View.OnTouchListener, RecyclerViewFastScroller {
 
-    public static final int ORIENTATION_VERTICAL = 0;
-    public static final int ORIENTATION_HORIZONTAL = 1;
-    @IntDef({ORIENTATION_VERTICAL, ORIENTATION_HORIZONTAL})
-    @Retention(CLASS)
-    @interface Orientation {}
-
     public static final int LEFT = 0;
     public static final int RIGHT = 1;
     public static final int TOP = 2;
@@ -55,7 +49,6 @@ public abstract class AbstractRecyclerViewFastScroller extends FrameLayout
 
     protected final boolean fIsAutoShowHide;      // Boolean to control whether scroller will auto show/hide upon scrolling.
     protected final ConstraintLayout fRootConstraintContainer;
-    protected final View fSliderBar;
     protected final ImageView fScrollHandler;
     protected final GestureDetectorCompat fHandlerGestureDetector;
 
@@ -71,17 +64,12 @@ public abstract class AbstractRecyclerViewFastScroller extends FrameLayout
         }
 
         TypedArray attributes = getContext().getTheme().obtainStyledAttributes(attrs, STYLEABLE, 0, 0);
-        fSliderBar = findViewById(R.id.scroll_bar);
         fScrollHandler = findViewById(R.id.scroll_handle);
-
         fHandlerGestureDetector = new GestureDetectorCompat(context, getHandlerGestureListener());
         fRootConstraintContainer = findViewById(R.id.scroll_bar_container);
         fIsAutoShowHide = attributes.getBoolean(R.styleable.AbstractRecyclerViewFastScroller_auto_show_hide_when_scrolled, true);
 
         try {
-            // Draw the slider bar
-            drawSliderBar(attributes);
-
             // Draw the scrollbar handler
             drawScrollHandler(attributes);
             attachScrollHandlerGestureListener();
@@ -225,26 +213,6 @@ public abstract class AbstractRecyclerViewFastScroller extends FrameLayout
         }
     }
 
-    private void drawSliderBar(TypedArray attributes) {
-        int sliderBarColor = attributes.getColor(R.styleable.AbstractRecyclerViewFastScroller_slider_bar_color, Color.GRAY);
-        fSliderBar.setBackgroundColor(sliderBarColor);
-
-        int defaultThickness = (int) getResources().getDimension(R.dimen.slider_bar_default_thickness);
-        int sliderThickness = attributes.getDimensionPixelSize(R.styleable.AbstractRecyclerViewFastScroller_slider_bar_thickness, defaultThickness);
-        int orientation = getOrientation();
-        switch (orientation) {
-            case ORIENTATION_VERTICAL:
-                fSliderBar.getLayoutParams().width = sliderThickness;
-                break;
-            case ORIENTATION_HORIZONTAL:
-                // TODO: 2018-10-09 Test horizontal case
-                fSliderBar.getLayoutParams().height = sliderThickness;
-                break;
-            default:
-                throw new IllegalStateException(String.format("Invalid orientation %s", orientation));
-        }
-    }
-
     private void attachScrollHandlerGestureListener() {
         fScrollHandler.setOnTouchListener(this);
     }
@@ -287,7 +255,7 @@ public abstract class AbstractRecyclerViewFastScroller extends FrameLayout
      * @return : returns the maximum height, in pixels, that the scroller can scroll.
      */
     protected float getHandlerMaxScrollableHeight() {
-        return fSliderBar.getHeight() - fScrollHandler.getHeight();
+        return fRootConstraintContainer.getHeight() - fScrollHandler.getHeight();
     }
 
     /**
@@ -323,9 +291,4 @@ public abstract class AbstractRecyclerViewFastScroller extends FrameLayout
      * @param @HandlerInfoViewPlacement : the placement of that view relative to the position of the scroll handler.
      */
     public abstract void attachHandlerInfoView(View view, @HandlerInfoViewPlacement int placement);
-
-    /**
-     * @return: the scroller's {@link Orientation}.
-     */
-    protected abstract @Orientation int getOrientation();
 }

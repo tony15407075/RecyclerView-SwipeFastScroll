@@ -7,8 +7,6 @@
         <attr name="scroll_handler_width" format="dimension" />
         <attr name="scroll_handler_height" format="dimension" />
         <attr name="auto_show_hide_when_scrolled" format="boolean" />
-        <attr name="slider_bar_color" format="color" />
-        <attr name="slider_bar_thickness" format="dimension" />
     </declare-styleable>
 
 

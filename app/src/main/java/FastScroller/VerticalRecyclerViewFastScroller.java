@@ -74,7 +74,7 @@ public class VerticalRecyclerViewFastScroller extends AbstractRecyclerViewFastSc
             float infoViewYTop = infoViewYPosCenter - (infoViewHeight / 2);
 
             float infoViewTopMin = 0.0f;
-            float infoViewTopMax = fSliderBar.getHeight() - infoViewHeight;
+            float infoViewTopMax = fRootConstraintContainer.getHeight() - infoViewHeight;
 
             // Should not be less than infoViewTopMin
             if (infoViewYTop < infoViewTopMin) {
@@ -118,11 +118,6 @@ public class VerticalRecyclerViewFastScroller extends AbstractRecyclerViewFastSc
                         VerticalRecyclerViewFastScroller.class.getSimpleName())
                 );
         }
-    }
-
-    @Override
-    protected @Orientation int getOrientation() {
-        return ORIENTATION_VERTICAL;
     }
 
     // Listens to recycler view onScroll event.
@@ -179,10 +174,7 @@ public class VerticalRecyclerViewFastScroller extends AbstractRecyclerViewFastSc
             scrollHandlerYPos = Math.max(0, scrollHandlerYPos);
         } else {
             scrollHandlerYPos += Math.abs(cursorDeltaY);
-            int scrollViewHeight = fSliderBar.getHeight();
-            int scrollHandleHeight = fScrollHandler.getHeight();
-
-            int scrollHandleMaxYPos = scrollViewHeight - scrollHandleHeight;
+            float scrollHandleMaxYPos = getHandlerMaxScrollableHeight();
             scrollHandlerYPos = Math.min(scrollHandleMaxYPos, scrollHandlerYPos);
         }
         return scrollHandlerYPos;
