@@ -254,7 +254,9 @@ public abstract class AbstractRecyclerViewFastScroller extends FrameLayout
 
     @Override
     public void setDefaultHandlerInfoText(String handlerInfoText) {
-        fDefaultHandlerInfoTextView.setText(handlerInfoText);
+        if (fDefaultHandlerInfoTextView != null) {
+            fDefaultHandlerInfoTextView.setText(handlerInfoText);
+        }
     }
 
     /**
