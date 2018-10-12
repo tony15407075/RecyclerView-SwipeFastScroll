@@ -71,6 +71,8 @@ public abstract class AbstractRecyclerViewFastScroller extends FrameLayout
     protected final ConstraintLayout fRootConstraintContainer;
     protected final ImageView fScrollHandler;
     protected final GestureDetectorCompat fHandlerGestureDetector;
+    protected final int fShowAnimationResId;
+    protected final int fHideAnimationResId;
 
     protected RecyclerView mRecyclerView;
     private FastScrollHandlerListener mFastScrollHandlerListener;
@@ -91,6 +93,8 @@ public abstract class AbstractRecyclerViewFastScroller extends FrameLayout
         TypedArray attributes = getContext().getTheme().obtainStyledAttributes(attrs, STYLEABLE, 0, 0);
         try {
             fIsAutoShowHide = attributes.getBoolean(R.styleable.AbstractRecyclerViewFastScroller_auto_show_hide_when_scrolled, true);
+            fShowAnimationResId = attributes.getResourceId(R.styleable.AbstractRecyclerViewFastScroller_show_animation, R.anim.right_slide_in);
+            fHideAnimationResId = attributes.getResourceId(R.styleable.AbstractRecyclerViewFastScroller_hide_animation, R.anim.right_slide_out);
             boolean isShowDefaultHandlerInfo = !attributes.getBoolean(R.styleable.AbstractRecyclerViewFastScroller_default_scroll_handler_info_hide, false);
 
             // Draw the scrollbar handler
@@ -325,7 +329,7 @@ public abstract class AbstractRecyclerViewFastScroller extends FrameLayout
 
         // Auto hide the fast scroller if set to true.
         if (fIsAutoShowHide) {
-            hide(R.anim.right_slide_out);
+            hide(fHideAnimationResId);
         }
 
         if (mFastScrollHandlerListener != null) {

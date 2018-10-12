@@ -22,7 +22,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:auto_show_hide_when_scrolled="false"
+        app:auto_show_hide_when_scrolled="true"
         app:default_scroll_handler_info_position="left|top"
         />
 
