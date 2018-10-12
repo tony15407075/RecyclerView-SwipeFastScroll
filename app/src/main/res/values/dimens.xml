@@ -5,13 +5,12 @@
     <dimen name="nav_header_vertical_spacing">8dp</dimen>
     <dimen name="nav_header_height">176dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
-    <dimen name="scroll_handler_default_width">10dp</dimen>
-    <dimen name="scroll_slider_default_width">1dp</dimen>
-
+    <dimen name="scroll_handler_default_width">20dp</dimen>
     <dimen name="default_handler_info_pointed_circle_radius">74dp</dimen>
     <dimen name="handler_info_margin_small">8dp</dimen>
-
     <dimen name="handler_info_text_large">48sp</dimen>
     <dimen name="handler_info_text_medium">36sp</dimen>
     <dimen name="handler_info_text_small">24sp</dimen>
+    <dimen name="scroll_handler_default_padding_left">7dp</dimen>
+    <dimen name="scroll_handler_default_padding_right">3dp</dimen>
 </resources>
