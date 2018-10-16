@@ -241,18 +241,11 @@ public abstract class AbstractRecyclerViewFastScroller extends FrameLayout
             return;
         }
 
+        fRootConstraintContainer.setVisibility(View.INVISIBLE);
         if (animationResId.length > 0) {
             Animation animation = AnimationUtils.loadAnimation(getContext(), animationResId[0]);
-            animation.setAnimationListener(new Animation.AnimationListener() {
-                @Override public void onAnimationStart(Animation animation) {}
-                @Override public void onAnimationRepeat(Animation animation) {}
-                @Override public void onAnimationEnd(Animation animation) {
-                    fRootConstraintContainer.setVisibility(View.INVISIBLE);
-                }
-            });
+            animation.setFillAfter(true);
             fRootConstraintContainer.startAnimation(animation);
-        } else {
-            fRootConstraintContainer.setVisibility(View.INVISIBLE);
         }
     }
 
